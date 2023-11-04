@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
-import getCurrentLocation from "./Components/geolocation";
+import { View, Text, StyleSheet, Button } from "react-native";
+import useCurrentLocation from "./Components/geolocation";
 
 function calcularDistancia(posicionActual, lugar) {
   const radioTierra = 6371; // Radio de la Tierra en kilómetros
@@ -31,28 +31,33 @@ function App() {
   const [distanciaCasaTia, setDistanciaCasaTia] = useState(0);
   const [posicionActual, setPosicionActual] = useState(null);
 
+  const location = useCurrentLocation();
+
   useEffect(() => {
-    const obtenerDistancia = async () => {
-      try {
-        const posicion = await getCurrentLocation();
-        setPosicionActual(posicion);
+    if (location) {
+      setPosicionActual(location);
 
-        const distancia = calcularDistancia(posicion, casaTia);
-        setDistanciaCasaTia(distancia);
-      } catch (error) {
-        console.error("Error al obtener la ubicación:", error);
-        // Puedes manejar el error de otra manera si es necesario
-      }
-    };
-
-    obtenerDistancia();
-  }, []);
+      const distancia = calcularDistancia(location, casaTia);
+      setDistanciaCasaTia(distancia);
+    }
+  }, [location]);
 
   // Coordenadas geográficas de los lugares de interés
   const casaTia = { latitude: 8.520878126024456, longitude: -80.34593715413044 };
 
   return (
     <View style={styles.container}>
+      <Text>Bienvenidos!</Text>
+      {/*<View
+        style={{marginTop: 10, padding: 10, borderRadius: 10, width: '40%'}}>
+        <Button title="Get Location" onPress={getCurrentLocation} />
+      </View>
+      <Text>Latitude: {location ? location.coords.latitude : null}</Text>
+      <Text>Longitude: {location ? location.coords.longitude : null}</Text>
+      <View
+        style={{marginTop: 10, padding: 10, borderRadius: 10, width: '40%'}}>
+        <Button title="Send Location" />
+        </View>*/}
       <Text style={styles.title}>Distancia a la casa de tu tía: {distanciaCasaTia} metros</Text>
     </View>
   );
@@ -61,8 +66,9 @@ function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   title: {
     fontSize: 18,
